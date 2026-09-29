@@ -1,0 +1,6 @@
+Policy,Overall Score,Uwait,Ucritical,Ureject,Uspecialized,Admitted,Rejected,Avg Wait (min),P95 Wait (min),Avoidable Violations,Runtime (s)
+FIFO,50.6707,0.343508,0.12914,0.842,1.0,421,79,103.36,240.0,0,0.9978
+Acuity First,51.5188,0.352161,0.155076,0.838,1.0,419,81,102.9,240.0,0,0.9925
+Weighted Wait,51.5188,0.352161,0.155076,0.838,1.0,419,81,102.9,240.0,0,0.9797
+Specialized Preserving,52.9144,0.359681,0.209437,0.836,1.0,418,82,103.93,240.0,0,0.9739
+Final Hybrid Policy,52.9144,0.359681,0.209437,0.836,1.0,418,82,103.93,240.0,0,0.994

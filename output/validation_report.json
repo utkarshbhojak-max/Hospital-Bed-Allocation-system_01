@@ -1,0 +1,68 @@
+{
+  "validation_passed": true,
+  "total_checks": 12,
+  "passed_checks": 12,
+  "failed_checks": 0,
+  "checks": [
+    {
+      "check": "cohort_size_exact_500",
+      "passed": true,
+      "detail": "Count = 500"
+    },
+    {
+      "check": "bed_capacity_bounds_enforced",
+      "passed": true,
+      "detail": "Gen <= 30: True, Mon <= 10: True, Crit <= 5: True"
+    },
+    {
+      "check": "no_duplicate_admissions",
+      "passed": true,
+      "detail": "Unique admitted = 418"
+    },
+    {
+      "check": "no_duplicate_rejections",
+      "passed": true,
+      "detail": "Unique rejected = 82"
+    },
+    {
+      "check": "terminal_state_mutual_exclusivity",
+      "passed": true,
+      "detail": "Overlapping IDs = 0"
+    },
+    {
+      "check": "level_3_strictly_critical",
+      "passed": true,
+      "detail": "All Level-3 patients in Critical beds"
+    },
+    {
+      "check": "level_2_strictly_monitored_or_critical",
+      "passed": true,
+      "detail": "Zero Level-2 in General beds"
+    },
+    {
+      "check": "admitted_patients_never_evicted",
+      "passed": true,
+      "detail": "Full realized LOS fulfilled"
+    },
+    {
+      "check": "no_premature_rejections",
+      "passed": true,
+      "detail": "All rejections occurred at 240.0m threshold"
+    },
+    {
+      "check": "all_patients_resolved_to_terminal_state",
+      "passed": true,
+      "detail": "Resolved = 500/500"
+    },
+    {
+      "check": "anti_future_information_invariance",
+      "passed": true,
+      "detail": "Decisions identical across runs: True, Decision: (11, 'Critical', 1655.08, 'Critical acuity priority allocation (elapsed wait: 30.0m; Critical free: 1/5)')"
+    },
+    {
+      "check": "deterministic_reproducibility",
+      "passed": true,
+      "detail": "All metric keys identical: True, Decision count: 949"
+    }
+  ]
+}

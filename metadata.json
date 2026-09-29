@@ -1,0 +1,6 @@
+{
+  "name": "HC-03 Hospital Bed Allocation",
+  "description": "Online capacity-aware hospital bed allocation under uncertainty with discrete-event simulation, baseline comparisons, and optimization analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
