@@ -7,13 +7,13 @@
       "bindings": [
         {
           "type": "service",
-          "service": "hc-03",
+          "service": "backend",
           "format": "url",
-          "env": "HC_03_URL"
+          "env": "BACKEND_URL"
         }
       ]
     },
-    "hc-03": {
+    "backend": {
       "root": "HC-03",
       "runtime": "python"
     }

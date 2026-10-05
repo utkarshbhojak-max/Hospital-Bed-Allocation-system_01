@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
-  const baseUrl = process.env.HC_03_URL;
-  if (!baseUrl) return res.status(500).json({ status: "error", error: "HC_03_URL not set" });
+  const baseUrl = process.env.BACKEND_URL;
+  if (!baseUrl) return res.status(500).json({ status: "error", error: "BACKEND_URL not set" });
   
   try {
     const response = await fetch(new URL("/cmd", baseUrl).toString(), {
