@@ -1,7 +1,5 @@
-import os
 import json
 import traceback
-from http.server import BaseHTTPRequestHandler, HTTPServer
 from simulator import DiscreteEventSimulator
 from policy import BedAllocationPolicy
 
@@ -13,67 +11,61 @@ class SimServer:
 
 sim_instance = SimServer()
 
-class RequestHandler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        if self.path == '/cmd':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            
+def app(environ, start_response):
+    if environ['REQUEST_METHOD'] == 'POST' and environ['PATH_INFO'] == '/cmd':
+        try:
             try:
+                content_length = int(environ.get('CONTENT_LENGTH', 0))
+            except ValueError:
+                content_length = 0
+                
+            if content_length > 0:
+                post_data = environ['wsgi.input'].read(content_length)
                 req = json.loads(post_data)
-                cmd = req.get("cmd", "state")
+            else:
+                req = {}
                 
-                if cmd == "reset":
-                    sim_instance.sim.reset()
-                    state = sim_instance.sim.get_state(event_type="RESET")
-                    state["is_finished"] = sim_instance.sim.is_finished
-                    response = {"status": "ok", "state": state}
-                    
-                elif cmd == "step":
-                    steps = max(1, min(100, int(req.get("steps", 1))))
-                    last_state = None
-                    for _ in range(steps):
-                        if not sim_instance.sim.is_finished:
-                            last_state = sim_instance.sim.step()
-                        else:
-                            break
-                    if last_state is None:
-                        last_state = sim_instance.sim.get_state(event_type="STEP")
-                    last_state["is_finished"] = sim_instance.sim.is_finished
-                    response = {"status": "ok", "state": last_state}
-                    
-                elif cmd == "state":
-                    state = sim_instance.sim.get_state()
-                    state["is_finished"] = sim_instance.sim.is_finished
-                    response = {"status": "ok", "state": state}
-                    
-                else:
-                    response = {"status": "error", "error": f"Unknown command: {cmd}"}
-                    
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps(response).encode('utf-8'))
+            cmd = req.get("cmd", "state")
+            
+            if cmd == "reset":
+                sim_instance.sim.reset()
+                state = sim_instance.sim.get_state(event_type="RESET")
+                state["is_finished"] = sim_instance.sim.is_finished
+                response = {"status": "ok", "state": state}
                 
-            except Exception as e:
-                err_msg = f"{type(e).__name__}: {str(e)}\n{traceback.format_exc()}"
-                response = {"status": "error", "error": err_msg}
-                self.send_response(500)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps(response).encode('utf-8'))
-        else:
-            self.send_response(404)
-            self.end_headers()
+            elif cmd == "step":
+                steps = max(1, min(100, int(req.get("steps", 1))))
+                last_state = None
+                for _ in range(steps):
+                    if not sim_instance.sim.is_finished:
+                        last_state = sim_instance.sim.step()
+                    else:
+                        break
+                if last_state is None:
+                    last_state = sim_instance.sim.get_state(event_type="STEP")
+                last_state["is_finished"] = sim_instance.sim.is_finished
+                response = {"status": "ok", "state": last_state}
+                
+            elif cmd == "state":
+                state = sim_instance.sim.get_state()
+                state["is_finished"] = sim_instance.sim.is_finished
+                response = {"status": "ok", "state": state}
+                
+            else:
+                response = {"status": "error", "error": f"Unknown command: {cmd}"}
+                
+            status = '200 OK'
+            
+        except Exception as e:
+            err_msg = f"{type(e).__name__}: {str(e)}\n{traceback.format_exc()}"
+            response = {"status": "error", "error": err_msg}
+            status = '500 Internal Server Error'
+            
+        response_headers = [('Content-Type', 'application/json')]
+        start_response(status, response_headers)
+        return [json.dumps(response).encode('utf-8')]
 
-    def log_message(self, format, *args):
-        pass
-
-def run():
-    port = int(os.environ.get('PORT', 8000))
-    server = HTTPServer(('0.0.0.0', port), RequestHandler)
-    print(f"Starting server on port {port}...")
-    server.serve_forever()
-
-if __name__ == '__main__':
-    run()
+    status = '404 Not Found'
+    response_headers = [('Content-Type', 'text/plain')]
+    start_response(status, response_headers)
+    return [b"Not Found"]
