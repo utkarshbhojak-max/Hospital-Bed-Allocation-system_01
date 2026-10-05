@@ -3,12 +3,7 @@
   "services": {
     "app": {
       "root": ".",
-      "framework": "vite"
-    },
-    "api": {
-      "root": ".",
-      "runtime": "node",
-      "entrypoint": "server.ts",
+      "framework": "vite",
       "bindings": [
         {
           "type": "service",
@@ -20,17 +15,10 @@
     },
     "hc-03": {
       "root": "HC-03",
-      "runtime": "python",
-      "entrypoint": "server.py"
+      "runtime": "python"
     }
   },
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": {
-        "service": "api"
-      }
-    },
     {
       "source": "/(.*)",
       "destination": {
