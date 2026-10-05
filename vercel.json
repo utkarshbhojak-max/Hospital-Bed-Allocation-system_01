@@ -15,7 +15,8 @@
     },
     "backend": {
       "root": "HC-03",
-      "runtime": "python"
+      "runtime": "python",
+      "entrypoint": "server.py"
     }
   },
   "rewrites": [
