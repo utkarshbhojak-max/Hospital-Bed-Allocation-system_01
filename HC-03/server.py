@@ -1,4 +1,4 @@
-﻿import os
+import os
 import json
 import traceback
 from http.server import BaseHTTPRequestHandler, HTTPServer
