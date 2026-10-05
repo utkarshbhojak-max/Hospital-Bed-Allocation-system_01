@@ -4,9 +4,9 @@ import { createServer as createViteServer } from "vite";
 
 class PythonBridge {
   public async send(cmd: object): Promise<any> {
-    const baseUrl = process.env.HC_03_URL;
+    const baseUrl = process.env.BACKEND_URL;
     if (!baseUrl) {
-      throw new Error("HC_03_URL environment variable is not set");
+      throw new Error("BACKEND_URL environment variable is not set");
     }
     
     try {
@@ -82,7 +82,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(Server running on http://0.0.0.0:);
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
   });
 }
 
