@@ -1,85 +1,24 @@
-import express from "express";
+﻿import express from "express";
 import path from "path";
-import { spawn, ChildProcessWithoutNullStreams } from "child_process";
-import readline from "readline";
 import { createServer as createViteServer } from "vite";
 
 class PythonBridge {
-  private proc: ChildProcessWithoutNullStreams | null = null;
-  private queue: Array<(res: any) => void> = [];
-
-  constructor() {
-    this.start();
-  }
-
-  private start() {
-    this.proc = spawn("python3", ["-u", "sim_bridge.py"]);
-    const rl = readline.createInterface({ input: this.proc.stdout });
-
-    rl.on("line", (line) => {
-      const resolve = this.queue.shift();
-      if (resolve) {
-        try {
-          resolve(JSON.parse(line));
-        } catch (e) {
-          resolve({ status: "error", error: "Failed to parse JSON response" });
-        }
-      }
-    });
-
-    this.proc.stderr.on("data", (data) => {
-      console.error("[Python Bridge Error]:", data.toString());
-    });
-
-    this.proc.on("exit", (code) => {
-      console.log(`Python bridge process exited with code ${code}, restarting...`);
-      this.proc = null;
-      // Drain any pending callbacks with an error so requests don't hang
-      while (this.queue.length > 0) {
-        const resolve = this.queue.shift();
-        if (resolve) {
-          resolve({ status: "error", error: "Simulation bridge restarted, please retry." });
-        }
-      }
-      setTimeout(() => this.start(), 500);
-    });
-  }
-
-  public send(cmd: object): Promise<any> {
-    return new Promise((resolve) => {
-      if (!this.proc || this.proc.killed) {
-        this.start();
-      }
-
-      let settled = false;
-      const timer = setTimeout(() => {
-        if (!settled) {
-          settled = true;
-          const idx = this.queue.indexOf(safeResolve);
-          if (idx !== -1) this.queue.splice(idx, 1);
-          resolve({ status: "error", error: "Simulation bridge request timed out." });
-        }
-      }, 8000);
-
-      const safeResolve = (res: any) => {
-        if (!settled) {
-          settled = true;
-          clearTimeout(timer);
-          resolve(res);
-        }
-      };
-
-      this.queue.push(safeResolve);
-      try {
-        if (this.proc && this.proc.stdin.writable) {
-          this.proc.stdin.write(JSON.stringify(cmd) + "\n");
-        } else {
-          safeResolve({ status: "error", error: "Bridge stdin not writable" });
-        }
-      } catch (err: any) {
-        safeResolve({ status: "error", error: err.message || "Failed to write to simulation bridge" });
-      }
-    });
+  public async send(cmd: object): Promise<any> {
+    const baseUrl = process.env.HC_03_URL;
+    if (!baseUrl) {
+      throw new Error("HC_03_URL environment variable is not set");
+    }
+    
+    try {
+      const response = await fetch(new URL("/cmd", baseUrl).toString(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cmd),
+      });
+      return await response.json();
+    } catch (err: any) {
+      return { status: "error", error: err.message || "Failed to fetch from HC-03 service" };
+    }
   }
 }
 
@@ -87,7 +26,7 @@ const bridge = new PythonBridge();
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   app.use(express.json());
 
@@ -128,7 +67,7 @@ async function startServer() {
   });
 
   // Vite middleware for development vs static build for production
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== "production" && process.env.VERCEL_ENV === undefined) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -143,7 +82,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
+    console.log(Server running on http://0.0.0.0:);
   });
 }
 

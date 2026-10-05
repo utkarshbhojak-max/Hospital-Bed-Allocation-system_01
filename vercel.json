@@ -1,0 +1,41 @@
+﻿{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "app": {
+      "root": ".",
+      "framework": "vite"
+    },
+    "api": {
+      "root": ".",
+      "runtime": "node",
+      "entrypoint": "server.ts",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "hc-03",
+          "format": "url",
+          "env": "HC_03_URL"
+        }
+      ]
+    },
+    "hc-03": {
+      "root": "HC-03",
+      "runtime": "python",
+      "entrypoint": "server.py"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "api"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "app"
+      }
+    }
+  ]
+}
