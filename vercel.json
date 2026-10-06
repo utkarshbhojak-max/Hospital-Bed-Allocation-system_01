@@ -21,6 +21,13 @@
   },
   "rewrites": [
     {
+      "source": "/api/sim/(.*)",
+      "destination": {
+        "service": "backend",
+        "path": "/api/sim/$1"
+      }
+    },
+    {
       "source": "/(.*)",
       "destination": {
         "service": "app"

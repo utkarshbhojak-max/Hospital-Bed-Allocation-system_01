@@ -12,7 +12,13 @@ class SimServer:
 sim_instance = SimServer()
 
 def app(environ, start_response):
-    if environ['REQUEST_METHOD'] == 'POST' and environ['PATH_INFO'] == '/cmd':
+    method = environ['REQUEST_METHOD']
+    path = environ['PATH_INFO']
+    
+    # Handle old /cmd or new /api/sim/* routes
+    is_valid_route = (method == 'POST' and path == '/cmd') or path.startswith('/api/sim/')
+    
+    if is_valid_route:
         try:
             try:
                 content_length = int(environ.get('CONTENT_LENGTH', 0))
@@ -25,7 +31,15 @@ def app(environ, start_response):
             else:
                 req = {}
                 
-            cmd = req.get("cmd", "state")
+            # Determine command either from body or path
+            if path == '/api/sim/reset':
+                cmd = 'reset'
+            elif path == '/api/sim/step':
+                cmd = 'step'
+            elif path == '/api/sim/state':
+                cmd = 'state'
+            else:
+                cmd = req.get("cmd", "state")
             
             if cmd == "reset":
                 sim_instance.sim.reset()
@@ -55,6 +69,7 @@ def app(environ, start_response):
                 response = {"status": "error", "error": f"Unknown command: {cmd}"}
                 
             status = '200 OK'
+
             
         except Exception as e:
             err_msg = f"{type(e).__name__}: {str(e)}\n{traceback.format_exc()}"
