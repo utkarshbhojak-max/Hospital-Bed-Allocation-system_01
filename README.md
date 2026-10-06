@@ -160,4 +160,4 @@ HC-03/
 5. **`output/policy_comparison.csv`**:
    Head-to-head metrics comparing all 5 evaluated policies.
 6. **`output/validation_report.json`**:
-   Machine-readable audit report of all 12 validation assertionsss.
+   Machine-readable audit report of all 12 validation assertions.
